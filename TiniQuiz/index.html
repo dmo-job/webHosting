@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>캐치! 티니핑 랜덤 퀴즈</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; background: #fce4ec; }
+    h1 { color: #d81b60; }
+    #quiz { margin-top: 20px; }
+    img { width: 200px; height: auto; margin: 10px; }
+    input { padding: 8px; margin: 10px; }
+    button { padding: 8px 12px; background: #d81b60; color: white; border: none; cursor: pointer; }
+    #result { margin-top: 20px; font-size: 18px; }
+  </style>
+</head>
+<body>
+  <h1>캐치! 티니핑 랜덤 퀴즈</h1>
+  <div id="quiz">
+    <p id="question">문제를 시작하려면 버튼을 눌러주세요!</p>
+    <img id="characterImage" src="" alt="" style="display:none;">
+    <br>
+    <input type="text" id="answer" placeholder="캐릭터 이름 입력">
+    <button onclick="checkAnswer()">정답 확인</button>
+    <button onclick="nextQuestion()">다음 문제</button>
+  </div>
+  <div id="result"></div>
+
+  <script>
+    // 캐릭터 데이터베이스 (예시: 실제 이미지 URL을 넣어야 함)
+    const characters = [
+      {name: "하츄핑", img: "images/hachuping.jpg"},
+      {name: "프린스핑", img: "images/princ.jpg"},
+      {name: "오아핑", img: "images/oaping.jpg"},
+      {name: "달콤핑", img: "images/lucky.jpg"},
+      {name: "솔찌핑", img: "images/soljji.png"},
+      {name: "새콤핑", img: "images/secom.jpg"},
+      {name: "깨굴핑", img: "images/gge.jpg"},
+      {name: "트롯핑", img: "images/trot.jpg"},
+      {name: "트러핑", img: "images/tru.jpg"},
+      {name: "샤를핑", img: "images/sharle.jpg"},
+      // 실제로는 100여 명의 캐릭터를 추가 가능
+    ];
+
+    let score = 0;
+    let currentQuestion = 0;
+    let selectedCharacters = [];
+
+    function startQuiz() {
+      // 랜덤으로 10문제 뽑기
+      selectedCharacters = [...characters].sort(() => 0.5 - Math.random()).slice(0, 10);
+      currentQuestion = 0;
+      score = 0;
+      showQuestion();
+    }
+
+    function showQuestion() {
+      const char = selectedCharacters[currentQuestion];
+      document.getElementById("question").innerText = `문제 ${currentQuestion+1}: 이 캐릭터의 이름은 무엇일까요?`;
+      document.getElementById("characterImage").src = char.img;
+      document.getElementById("characterImage").style.display = "block";
+      document.getElementById("answer").value = "";
+      document.getElementById("result").innerText = "";
+    }
+
+    function checkAnswer() {
+      const userAnswer = document.getElementById("answer").value.trim();
+      const correctAnswer = selectedCharacters[currentQuestion].name;
+      if(userAnswer === correctAnswer) {
+        score++;
+        document.getElementById("result").innerText = "정답! 🎉";
+      } else {
+        document.getElementById("result").innerText = `오답 😢 정답은 ${correctAnswer} 입니다.`;
+      }
+    }
+
+    function nextQuestion() {
+      currentQuestion++;
+      if(currentQuestion < selectedCharacters.length) {
+        showQuestion();
+      } else {
+        document.getElementById("question").innerText = "퀴즈 종료!";
+        document.getElementById("characterImage").style.display = "none";
+        document.getElementById("result").innerText = `최종 점수: ${score} / ${selectedCharacters.length}`;
+      }
+    }
+
+    // 시작 시 자동 실행
+    startQuiz();
+  </script>
+</body>
+</html>
