@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>하츄핑 그림체 비교</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Noto+Color+Emoji&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --ink:#4A2B5C; --soft:#7A5A8C; --pink:#FF5C9E; --pink-deep:#E0407F; --line:#EAD7F7; --card:#FFFFFF; --bg:#FFF6FB;
+  --display:'Jua','Gowun Dodum','Malgun Gothic',sans-serif; --body:'Gowun Dodum','Malgun Gothic',sans-serif;
+  --cell:180px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;padding-inline:16px}
+main{max-width:1180px;margin:0 auto;padding-block:24px 48px}
+h1{font-family:var(--display);font-weight:400;font-size:38px;margin:0;color:var(--pink-deep)}
+.lead{margin:6px 0 0;color:var(--soft)}
+.bar{position:sticky;top:0;z-index:5;background:var(--bg);display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;padding:14px 0;border-bottom:3px dashed var(--line);margin-bottom:8px}
+.grp{display:flex;align-items:center;gap:6px;font-family:var(--display)}
+.grp button{font-family:var(--display);font-size:16px;background:#fff;border:3px solid var(--line);border-radius:14px;padding:6px 12px;color:var(--ink);cursor:pointer}
+.grp button.on{background:var(--pink);border-color:var(--pink-deep);color:#fff}
+.grp button:focus-visible{outline:3px solid #FFD66B;outline-offset:2px}
+h2{font-family:var(--display);font-weight:400;font-size:26px;margin:28px 0 10px}
+.rows{display:grid;grid-template-columns:repeat(auto-fill,minmax(calc(var(--cell)*3 + 70px),1fr));gap:14px}
+.pair{background:var(--card);border:3px solid var(--line);border-radius:22px;padding:10px 12px 12px}
+.pair b{display:block;font-family:var(--display);font-weight:400;font-size:19px;text-align:center;margin-bottom:6px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:10px}
+.side{border-radius:16px;padding:8px;display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--stage,#FFF0F7)}
+.side small{font-family:var(--display);font-size:14px;color:var(--soft)}
+.side .pic{width:var(--cell);max-width:100%}
+.ping{display:block;width:100%;height:auto;overflow:visible}
+img.ping{image-rendering:pixelated}
+body.room .side{--stage:linear-gradient(#FFE6F0 0 72%,#F3D2BE 72%)}
+body.dark .side{--stage:#3D2C5E}
+body.dark .side small{color:#E6D8F5}
+.foot{margin-top:28px;color:var(--soft);font-size:15px}
+@media (max-width:520px){h1{font-size:30px}}
+</style>
+</head>
+<body>
+<main>
+  <h1>하츄핑 그림체 비교</h1>
+  <p class="lead">매끈한 그림(SVG), 코드로 그린 도트, 그리고 원작 참고 그림으로 만든 도트를 나란히 보여 줘요. 크기와 배경을 바꿔 보면서 골라 보세요.</p>
+  <div class="bar">
+    <div class="grp">크기 <button data-size="110">작게</button><button data-size="180" class="on">보통</button><button data-size="280">크게</button></div>
+    <div class="grp">배경 <button data-bg="" class="on">분홍</button><button data-bg="room">방</button><button data-bg="dark">어두운</button></div>
+  </div>
+  <div id="out"><p class="lead">그림을 만드는 중이에요…</p></div>
+  <p class="foot">게임에서는 ⚙️ 부모님 설정 → 🧩 캐릭터 그림체에서 바꿀 수 있어요.</p>
+</main>
+<script>window.HPM_IMAGES={};</script>
+<script src="assets/characters/manifest.js"></script>
+<script src="js/data.js"></script>
+<script src="js/core.js"></script>
+<script src="js/art.js"></script>
+<script>
+(async()=>{
+  CFG.charImg=false;
+  const H={stage:2};
+  const groups=[
+    ['하츄핑 표정',[
+      ['기본',{...H,outfit:{dress:'d_hachu'}}],
+      ['웃는 얼굴',{...H,outfit:{dress:'d_hachu'},face:'happy'}],
+      ['졸린 얼굴',{...H,outfit:{dress:'d_hachu'},face:'sleepy'}],
+      ['아기 하츄핑',{stage:0,outfit:{dress:'d_hachu'}}],
+    ]],
+    ['변신 폼',FORMS.map(F=>[F.n,{...H,outfit:F.parts}])],
+    ['옷 입히기',[
+      ['무도회 드레스',{...H,outfit:{head:'crown',dress:'d_ball',hand:'wand'}}],
+      ['색동 한복',{...H,outfit:{head:'flower',dress:'d_hanbok',hand:'bouquet'}}],
+      ['인어 드레스',{...H,outfit:{head:'starband',dress:'d_mermaid',hand:'starwand'}}],
+      ['기사 옷',{...H,outfit:{head:null,dress:'d_knight',hand:'shield'}}],
+    ]],
+    ['티니핑 친구들',FRIENDS.map(f=>[f.n,{who:f.id,stage:1,prop:true}])],
+  ];
+  const all=groups.flatMap(g=>g[1].map(x=>x[1]));
+  await pxWarm(all);
+  const cell=(name,o)=>`<div class="pair"><b>${name}</b><div class="two">
+    <div class="side"><div class="pic">${vecPing(o)}</div><small>매끈한 그림</small></div>
+    <div class="side"><div class="pic">${(()=>{const s=CFG.refSprite;CFG.refSprite=false;const h=ping(o);CFG.refSprite=s;return h})()}</div><small>그린 도트</small></div>
+    ${sprKey(o)?`<div class="side"><div class="pic">${sprPing(sprKey(o),o)}</div><small>원작 도트</small></div>`:''}</div></div>`;
+  document.getElementById('out').innerHTML=groups.map(([t,list])=>`<h2>${t}</h2><div class="rows">${list.map(([n,o])=>cell(n,o)).join('')}</div>`).join('');
+  document.querySelectorAll('[data-size]').forEach(b=>b.onclick=()=>{document.documentElement.style.setProperty('--cell',b.dataset.size+'px');document.querySelectorAll('[data-size]').forEach(z=>z.classList.toggle('on',z===b))});
+  document.querySelectorAll('[data-bg]').forEach(b=>b.onclick=()=>{document.body.className=b.dataset.bg;document.querySelectorAll('[data-bg]').forEach(z=>z.classList.toggle('on',z===b))});
+})();
+</script>
+</body>
+</html>

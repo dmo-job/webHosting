@@ -1,0 +1,33 @@
+{
+  "style": "Soft pastel children's picture-book illustration, kawaii and cozy, gentle watercolor and gouache texture, rounded shapes, dreamy soft lighting, pink lavender mint and butter-yellow palette. Background scene only: no people, no characters, no animals in the foreground, no text, no letters, no logos, no watermark. Wide 16:9 composition with a clear open area in the lower center where a small character can stand.",
+  "images": {
+    "title_bg":      "a fairytale pink castle floating on fluffy clouds under a pastel sunrise sky, sparkles and tiny stars, rainbow in the distance",
+    "town_bg":       "a top-down-ish view of a wide pastel green meadow with winding cream-colored dirt paths, flower patches and round trees at the edges, soft blue sky strip at the top, empty spaces for houses",
+    "sc_dance":      "a cute ballet and dance studio with a big mirror, wooden floor, pastel curtains, disco ball, music notes floating",
+    "sc_study":      "a cozy fairytale library with tall wooden bookshelves full of colorful books, warm candle light, a round reading rug",
+    "sc_magic":      "a magical classroom at night with purple walls, floating stars, a crystal ball on a desk, spell books and glowing potions",
+    "sc_gym":        "a bright outdoor school playground and sports field with soft grass, colorful balls, a small running track, blue sky",
+    "sc_manners":    "an elegant pastel tea room in a palace with a round table, lace tablecloth, teapot, cakes on a stand and roses",
+    "sc_art":        "a sunny art classroom with easels, paint palettes, colorful paint splashes and children's drawings pinned on the wall",
+    "sc_bakery":     "a cute warm bakery interior with shelves of bread, croissants and cupcakes, a brick oven glowing, pastel awning",
+    "sc_flower":     "a pastel flower shop interior full of tulips, sunflowers, roses in buckets and hanging plants, watering cans",
+    "sc_baby":       "a soft nursery room with cribs, teddy bears, baby bottles, star mobiles and pastel blankets",
+    "sc_clean":      "a grand palace hallway with tall arched windows, shiny marble floor, soap bubbles floating, buckets and mops",
+    "sc_cook":       "a cheerful restaurant kitchen with copper pots, a big cake on the counter, strawberries and pastel tiles",
+    "sc_rest":       "a cozy pastel bedroom at night with a big window showing the moon and stars, soft pillows and a night lamp",
+    "sc_picnic":     "a sunny meadow picnic spot with a checkered blanket, a picnic basket, butterflies and wildflowers under a big tree",
+    "adv_forest":    "an enchanted sparkling forest path with giant mushrooms, glowing flowers, tall soft trees and light rays",
+    "adv_sea":       "a rainbow-colored seaside with turquoise water, seashells on the sand, coral reefs visible underwater and a pastel rainbow",
+    "adv_cloud":     "a castle in the sky above fluffy clouds with cloud bridges, floating stars and a lavender twilight sky",
+    "contest_stage": "a cute theater stage with red velvet curtains pulled open, warm spotlights, a wooden stage floor and stars on the backdrop",
+    "ballroom":      "a dazzling royal ballroom with crystal chandeliers, pink and gold decorations, a shiny dance floor and big arched windows",
+    "ev_cherry":     "a cherry blossom park in full bloom with pink petals falling along a path, soft spring sky",
+    "ev_beach":      "a summer beach with sand castles, a beach umbrella, gentle waves and a bright sun, pastel colors",
+    "ev_chuseok":    "a Korean traditional village at night under a giant full moon, hanok roofs, paper lanterns, autumn persimmon tree",
+    "ev_halloween":  "a cute not-scary Halloween party scene with smiling jack-o-lanterns, candy bowls, purple night sky and bats made of paper",
+    "ev_christmas":  "a cozy Christmas living room with a decorated tree, wrapped presents, snow outside the window and warm fairy lights",
+    "ev_seollal":    "a Korean Lunar New Year scene in a hanok courtyard with colorful kites, lucky pouches, rice cake soup bowls and plum blossoms",
+    "ev_birthday":   "a birthday party room with a big strawberry cake, balloons, garlands, presents and confetti",
+    "ending_bg":     "a royal rose garden at golden hour with sparkling fountains, flower arches and a distant pink palace"
+  }
+}
