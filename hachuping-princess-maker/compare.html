@@ -44,13 +44,13 @@ body.dark .side small{color:#E6D8F5}
 <body>
 <main>
   <h1>하츄핑 그림체 비교</h1>
-  <p class="lead">매끈한 그림(SVG), 코드로 그린 도트, 그리고 원작 참고 그림으로 만든 도트를 나란히 보여 줘요. 크기와 배경을 바꿔 보면서 골라 보세요.</p>
+  <p class="lead">매끈한 그림, 도트, 업로드 그림(배경만 지운 원래 그림)을 나란히 보여 줘요. 크기와 배경을 바꿔 보면서 골라 보세요.</p>
   <div class="bar">
     <div class="grp">크기 <button data-size="110">작게</button><button data-size="180" class="on">보통</button><button data-size="280">크게</button></div>
     <div class="grp">배경 <button data-bg="" class="on">분홍</button><button data-bg="room">방</button><button data-bg="dark">어두운</button></div>
   </div>
   <div id="out"><p class="lead">그림을 만드는 중이에요…</p></div>
-  <p class="foot">게임에서는 ⚙️ 부모님 설정 → 🧩 캐릭터 그림체에서 바꿀 수 있어요.</p>
+  <p class="foot">게임에서는 ⚙️ 부모님 설정 → 🧩 캐릭터 그림체에서 매끈한 그림 / 도트 / 업로드 그림 중에 고를 수 있어요.</p>
 </main>
 <script>window.HPM_IMAGES={};</script>
 <script src="assets/characters/manifest.js"></script>
@@ -59,7 +59,6 @@ body.dark .side small{color:#E6D8F5}
 <script src="js/art.js"></script>
 <script>
 (async()=>{
-  CFG.charImg=false;
   const H={stage:2};
   const groups=[
     ['하츄핑 표정',[
@@ -79,10 +78,11 @@ body.dark .side small{color:#E6D8F5}
   ];
   const all=groups.flatMap(g=>g[1].map(x=>x[1]));
   await pxWarm(all);
+  const asPixel=o=>{const s=CFG.charStyle;CFG.charStyle='pixel';const h=ping(o);CFG.charStyle=s;return h};
   const cell=(name,o)=>`<div class="pair"><b>${name}</b><div class="two">
     <div class="side"><div class="pic">${vecPing(o)}</div><small>매끈한 그림</small></div>
-    <div class="side"><div class="pic">${(()=>{const s=CFG.refSprite;CFG.refSprite=false;const h=ping(o);CFG.refSprite=s;return h})()}</div><small>그린 도트</small></div>
-    ${sprKey(o)?`<div class="side"><div class="pic">${sprPing(sprKey(o),o)}</div><small>원작 도트</small></div>`:''}</div></div>`;
+    <div class="side"><div class="pic">${asPixel(o)}</div><small>도트</small></div>
+    ${upKey(o)?`<div class="side"><div class="pic">${upPing(upKey(o),o)}</div><small>업로드 그림</small></div>`:''}</div></div>`;
   document.getElementById('out').innerHTML=groups.map(([t,list])=>`<h2>${t}</h2><div class="rows">${list.map(([n,o])=>cell(n,o)).join('')}</div>`).join('');
   document.querySelectorAll('[data-size]').forEach(b=>b.onclick=()=>{document.documentElement.style.setProperty('--cell',b.dataset.size+'px');document.querySelectorAll('[data-size]').forEach(z=>z.classList.toggle('on',z===b))});
   document.querySelectorAll('[data-bg]').forEach(b=>b.onclick=()=>{document.body.className=b.dataset.bg;document.querySelectorAll('[data-bg]').forEach(z=>z.classList.toggle('on',z===b))});

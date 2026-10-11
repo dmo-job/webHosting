@@ -621,3 +621,9 @@ button.fcard{font:inherit;color:inherit;cursor:pointer}
 .acard .ai{font-size:36px}
 .acard .an{font-size:17px}
 svg.ping.spr image{image-rendering:pixelated}
+
+/* 그림 넣기 칸 14개 */
+.charpick{grid-template-columns:repeat(7,1fr)}
+.cpk-img{width:88px}
+.cpk small{font-size:12px;color:var(--ink-soft)}
+.cpk.has{border-color:#9FDDBB;background:#F2FBF5}

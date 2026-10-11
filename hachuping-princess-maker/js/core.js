@@ -6,9 +6,10 @@ function store(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function drop(k){try{localStorage.removeItem(k)}catch(e){}}
 
 /* ---------- 부모님 설정 ---------- */
-const CFG_DEF = {voice:true, voiceRate:.95, bgm:true, sfx:true, speed:'normal', breakMin:0, charImg:true, pixel:true, refSprite:true};
+const CFG_DEF = {voice:true, voiceRate:.95, bgm:true, sfx:true, speed:'normal', breakMin:0, charStyle:'upload'};
 let CFG = {...CFG_DEF, ...(load('hpm_settings')||{})};
 if(load('hpm_sound')==='off'){CFG.voice=false;CFG.sfx=false;CFG.bgm=false}
+if(!['smooth','pixel','upload'].includes(CFG.charStyle))CFG.charStyle='upload';
 function saveCfg(){store('hpm_settings',CFG)}
 function speedMul(){return CFG.speed==='slow'?1.35:CFG.speed==='fast'?.8:1}
 
@@ -35,24 +36,34 @@ normMeta();
 function saveMeta(){store(META,meta)}
 
 /* ---------- 내가 넣은 캐릭터 그림 (이 컴퓨터 브라우저에만 저장) ---------- */
-const CHAR_KEYS = ['hachu','baro','aja','chacha','lala','hap'];
-const CHAR_NAMES = {hachu:'하츄핑',baro:'바로핑',aja:'아자핑',chacha:'차차핑',lala:'라라핑',hap:'해핑'};
+const CHAR_KEYS = ['hachu','hachu_flora','hachu_star','hachu_berry','hachu_dia','hachu_princess','areum','sappun','ponny','baro','aja','chacha','lala','hap'];
+const CHAR_NAMES = {hachu:'하츄핑',hachu_flora:'플로라 하츄핑',hachu_star:'스타 하츄핑',hachu_berry:'베리 하츄핑',hachu_dia:'다이아 하츄핑',hachu_princess:'프린세스 하츄핑',areum:'아름핑',sappun:'사뿐핑',ponny:'뽀니핑',baro:'바로핑',aja:'아자핑',chacha:'차차핑',lala:'라라핑',hap:'해핑'};
 const CHAR_IMG = {};
 function dataUrlToBlobUrl(d){
   try{const [h,b]=d.split(',');const mime=h.match(/:(.*?);/)[1];const bin=atob(b);const u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return URL.createObjectURL(new Blob([u],{type:mime}))}catch(e){return null}
 }
 for(const k of CHAR_KEYS){let d=null;try{d=localStorage.getItem('hpm_charimg_'+k)}catch(e){}if(d){const u=dataUrlToBlobUrl(d);if(u)CHAR_IMG[k]=u}}
-/* 가장자리와 같은 색 배경을 투명하게 */
+/* 가장자리와 같은 색 배경을 투명하게.
+   흰 옷이 흰 배경과 붙어 있어도 지워지지 않게, 색이 분명한 부분을 조금 부풀린 '벽'을 넘지 않아요. */
 function removeBg(img){
-  const {width:w,height:h,data:p}=img, at=(x,y)=>(y*w+x)*4;
+  const {width:w,height:h,data:p}=img, N=w*h, at=(x,y)=>(y*w+x)*4;
   const cs=[at(0,0),at(w-1,0),at(0,h-1),at(w-1,h-1)];
   if(cs.every(i=>p[i+3]<20))return;
   let r=0,g=0,b=0;cs.forEach(i=>{r+=p[i];g+=p[i+1];b+=p[i+2]});r/=4;g/=4;b/=4;
-  const near=i=>p[i+3]>0&&Math.abs(p[i]-r)+Math.abs(p[i+1]-g)+Math.abs(p[i+2]-b)<70;
-  const seen=new Uint8Array(w*h), st=[];
-  for(let x=0;x<w;x++)st.push(x,0,x,h-1);
-  for(let y=0;y<h;y++)st.push(0,y,w-1,y);
-  while(st.length){const y=st.pop(),x=st.pop();if(x<0||y<0||x>=w||y>=h)continue;const k=y*w+x;if(seen[k])continue;seen[k]=1;const i=k*4;if(!near(i))continue;p[i+3]=0;st.push(x+1,y,x-1,y,x,y+1,x,y-1)}
+  const diff=new Float32Array(N);
+  for(let k=0;k<N;k++){const i=k*4;diff[k]=Math.max(Math.abs(p[i]-r),Math.abs(p[i+1]-g),Math.abs(p[i+2]-b))}
+  const R=Math.max(3,Math.round(Math.min(w,h)/40));
+  let wall=new Uint8Array(N);for(let k=0;k<N;k++)wall[k]=diff[k]>20?1:0;
+  const grow=m=>{const o=m.slice();for(let y=0;y<h;y++)for(let x=0;x<w;x++){const k=y*w+x;if(m[k])continue;if((x>0&&m[k-1])||(x<w-1&&m[k+1])||(y>0&&m[k-w])||(y<h-1&&m[k+w]))o[k]=1}return o};
+  for(let i=0;i<R;i++)wall=grow(wall);
+  const bg=new Uint8Array(N), q=[];
+  const push=k=>{if(!bg[k]&&!wall[k]&&diff[k]<=9){bg[k]=1;q.push(k)}};
+  for(let x=0;x<w;x++){push(x);push((h-1)*w+x)}
+  for(let y=0;y<h;y++){push(y*w);push(y*w+w-1)}
+  while(q.length){const k=q.pop(),x=k%w,y=(k-x)/w;if(x>0)push(k-1);if(x<w-1)push(k+1);if(y>0)push(k-w);if(y<h-1)push(k+w)}
+  let reg=bg;
+  for(let i=0;i<=R+1;i++){const gg=grow(reg);for(let k=0;k<N;k++)if(gg[k]&&!reg[k]&&diff[k]>(i>R?22:9))gg[k]=0;reg=gg}
+  for(let k=0;k<N;k++)if(reg[k])p[k*4+3]=0;
 }
 function opaqueBox(img){
   const {width:w,height:h,data:p}=img;let x0=w,y0=h,x1=-1,y1=-1;

@@ -276,10 +276,6 @@ function eyePair(c,id,face){
   if(face==='sad')return `<g>${one(76,-1)}${one(124,1)}</g><g stroke="#3B2350" stroke-width="3" stroke-linecap="round"><path d="M64,88 L86,93"/><path d="M136,88 L114,93"/></g>`;
   return `<g class="eyes" style="animation-delay:-${(Math.random()*4).toFixed(2)}s">${one(76,-1)}${one(124,1)}</g>`;
 }
-function imgPing(who,o){
-  const face=o.face||(o.sleepy?'sleepy':''), mark={sleepy:'💤',happy:'✨',sad:'💧'}[face];
-  return `<svg viewBox="-14 -14 228 258" class="ping custom" aria-hidden="true"><ellipse cx="100" cy="230" rx="50" ry="7" fill="#4A2B5C" opacity=".12"/><image href="${CHAR_IMG[who]}" x="-12" y="-12" width="224" height="244" preserveAspectRatio="xMidYMax meet"${o.gray?' style="filter:grayscale(1) brightness(1.5) opacity(.45)"':''}/>${!o.gray&&mark?`<text x="160" y="34" font-size="32">${mark}</text>`:''}</svg>`;
-}
 function vecPing(o={}){
   const id='hp'+(uid++), who=o.who||'hachu', c=o.gray?GRAY:(CHARS[who]||CHARS.hachu);
   const stage=o.stage??2, of=o.outfit||{}, face=o.face||(o.sleepy?'sleepy':''), L=c.line;
@@ -368,26 +364,29 @@ function pxQueue(id,o,bk){
   PX.wait.set(id,p); return p;
 }
 function pxWarm(list){return Promise.all(list.map(o=>{const id=pxIdOf(pxKeyOf(o));return PX.url.has(id)?null:pxQueue(id,o)}))}
-/* ---------- 원작 참고 그림으로 만든 도트 (tools/make_sprites.py, 이 PC에서만) ---------- */
+/* ---------- 업로드 그림 (배경만 지운 그림을 그대로) ----------
+   설정의 📁 그림 넣기로 넣은 그림이 먼저, 없으면 assets/characters 에 있는 그림(tools/make_characters.py).
+   하츄핑은 기본 옷이나 변신 폼 세트를 입었을 때만 그 그림을 써요. 그림이 없으면 매끈한 그림으로 그려요. */
 const SPR = window.HPM_CHARS || {};
-function sprKey(o){
+function upUrl(k){return CHAR_IMG[k] || (SPR[k] ? 'assets/characters/'+SPR[k] : null)}
+function upKey(o){
   const who=o.who||'hachu';
-  if(who!=='hachu')return SPR[who]?who:null;
+  if(who!=='hachu')return upUrl(who)?who:null;
   const of=o.outfit||{};
   const F=FORMS.find(F=>F.parts.head===(of.head||null)&&F.parts.dress===(of.dress||null)&&F.parts.hand===(of.hand||null));
-  if(F&&SPR['hachu_'+F.id])return 'hachu_'+F.id;
-  if((of.dress==='d_hachu'||!of.dress)&&!of.head&&!of.hand&&SPR.hachu)return 'hachu';
+  if(F&&upUrl('hachu_'+F.id))return 'hachu_'+F.id;
+  if((of.dress==='d_hachu'||!of.dress)&&!of.head&&!of.hand&&upUrl('hachu'))return 'hachu';
   return null;
 }
-function sprPing(k,o){
+function upPing(k,o){
   const face=o.face||(o.sleepy?'sleepy':''), mark={sleepy:'💤',happy:'✨',sad:'💧'}[face];
-  return `<svg viewBox="-14 -14 228 258" class="ping spr" aria-hidden="true"><image href="assets/characters/${SPR[k]}" x="-14" y="-14" width="228" height="258" preserveAspectRatio="xMidYMax meet" style="image-rendering:pixelated${o.gray?';filter:grayscale(1) brightness(1.5) opacity(.45)':''}"/>${!o.gray&&mark?`<text x="164" y="34" font-size="30">${mark}</text>`:''}</svg>`;
+  return `<svg viewBox="-14 -14 228 258" class="ping up" aria-hidden="true"><ellipse cx="100" cy="232" rx="54" ry="7" fill="#4A2B5C" opacity=".12"/><image href="${upUrl(k)}" x="-14" y="-14" width="228" height="250" preserveAspectRatio="xMidYMax meet"${o.gray?' style="filter:grayscale(1) brightness(1.5) opacity(.45)"':''}/>${!o.gray&&mark?`<text x="164" y="34" font-size="30">${mark}</text>`:''}</svg>`;
 }
+function charStyle(){return CFG.charStyle||'upload'}
 function ping(o={}){
-  const who=o.who||'hachu';
-  if(CFG.charImg&&CHAR_IMG[who])return imgPing(who,o);
-  if(CFG.refSprite!==false&&CFG.pixel!==false){const k=sprKey(o);if(k)return sprPing(k,o)}
-  if(CFG.pixel===false)return vecPing(o);
+  const st=charStyle();
+  if(st==='upload'){const k=upKey(o);return k?upPing(k,o):vecPing(o)}
+  if(st==='smooth')return vecPing(o);
   const id=pxIdOf(pxKeyOf(o)), face=o.face||(o.sleepy?'sleepy':'');
   let bk='';
   if(face===''&&!o.gray){const bo={...o,face:'blink',sleepy:false};bk=pxIdOf(pxKeyOf(bo));if(!PX.url.has(bk))pxQueue(bk,bo)}
@@ -398,7 +397,7 @@ function ping(o={}){
 }
 /* 도트 캐릭터 눈 깜빡임 */
 setInterval(()=>{
-  if(CFG.pixel===false)return;
+  if(charStyle()!=='pixel')return;
   document.querySelectorAll('img.px[data-bk]').forEach(img=>{
     if(Math.random()<.4)return;
     const bu=PX.url.get(img.dataset.bk); if(!bu)return;

@@ -358,12 +358,11 @@ function openSettings(){
       <div class="set"><b>🔔 효과음</b>${seg('sfx',[[true,'켜기'],[false,'끄기']])}</div>
       <div class="set"><b>🎮 미니게임 속도</b>${seg('speed',[['slow','느리게'],['normal','보통'],['fast','빠르게']])}</div>
       <div class="set"><b>⏰ 쉬는 시간 알림</b>${seg('breakMin',[[0,'끄기'],[20,'20분'],[30,'30분'],[45,'45분']])}</div>
-      <div class="set"><b>🧩 캐릭터 그림체</b>${seg('pixel',[[true,'도트'],[false,'매끈한 그림']])}</div>
-      ${Object.keys(SPR).length?`<div class="set"><b>🌟 원작 도트</b>${seg('refSprite',[[true,'원작 도트 쓰기'],[false,'그린 도트 쓰기']])}</div>`:''}
-      <div class="set"><b>🖼️ 캐릭터 그림</b>${seg('charImg',[[true,'내가 넣은 그림 쓰기'],[false,'게임 그림만 쓰기']])}</div>
-      <div class="charpick">${CHAR_KEYS.map(k=>`<div class="cpk"><div class="cpk-img">${k==='hachu'?ping({stage:2,outfit:meta.outfit}):ping({who:k,stage:1,prop:true})}</div><b>${CHAR_NAMES[k]}</b>
-        <label class="btn sm pink">📁 그림 넣기<input type="file" accept="image/*" data-ci="${k}" hidden></label>${CHAR_IMG[k]?`<button class="btn sm" data-cdel="${k}">🗑️ 빼기</button>`:''}</div>`).join('')}</div>
-      <p class="hint">배경이 없는(투명) PNG가 가장 예뻐요. 흰색처럼 한 가지 색인 배경은 자동으로 지워요.<br>넣은 그림은 이 컴퓨터 브라우저에만 저장되고, 넣은 그림에는 옷 입히기와 표정이 보이지 않아요.</p>
+      <div class="set"><b>🧩 캐릭터 그림체</b>${seg('charStyle',[['smooth','매끈한 그림'],['pixel','도트'],['upload','업로드 그림']])}</div>
+      <div class="charpick">${CHAR_KEYS.map(k=>{const F=FORMS.find(f=>'hachu_'+f.id===k), o=k==='hachu'?{stage:2,outfit:{head:null,dress:'d_hachu',hand:null}}:F?{stage:2,outfit:F.parts}:{who:k,stage:1,prop:true};
+        return `<div class="cpk ${upUrl(k)?'has':''}"><div class="cpk-img">${upUrl(k)?upPing(k,o):vecPing(o)}</div><b>${CHAR_NAMES[k]}</b><small>${CHAR_IMG[k]?'✔ 넣은 그림':SPR[k]?'✔ 기본 그림':'그림 없음'}</small>
+        <label class="btn sm pink">📁 그림 넣기<input type="file" accept="image/*" data-ci="${k}" hidden></label>${CHAR_IMG[k]?`<button class="btn sm" data-cdel="${k}">🗑️ 빼기</button>`:''}</div>`}).join('')}</div>
+      <p class="hint"><b>업로드 그림</b>을 고르면 그림이 있는 캐릭터는 그 그림을 그대로 쓰고, 그림이 없는 캐릭터는 매끈한 그림으로 나와요.<br>하츄핑은 기본 옷이나 변신 폼을 입었을 때만 그 그림이 나와요. 배경이 없는(투명) PNG가 가장 예쁘고, 한 가지 색 배경은 자동으로 지워요.</p>
       <div class="set"><b>💾 저장 데이터</b><div class="seg">${[1,2,3].map(n=>`<button data-del="${n}">슬롯 ${n} 지우기</button>`).join('')}<button data-reset="1" class="danger">모두 처음으로</button></div></div>
       <p class="hint">버전 ${VERSION} · 옷 ${meta.owned.length}/${ITEMS.length} · 엔딩 ${meta.endings.length}/${ENDING_ORDER.length} · 스티커 ${meta.stickers.length}/${STICKERS.length}</p>
     </div>
@@ -374,7 +373,7 @@ function openSettings(){
     if(b.dataset.k==='bgm'){if(CFG.bgm)bgm(BGM.want||'title');else bgmStop(true)}
     if(b.dataset.k==='voiceRate'||b.dataset.k==='voice')say('하츄핑이 이렇게 읽어 줄게요!');
     if(b.dataset.k==='breakMin')breakStart=Date.now();
-    if(b.dataset.k==='charImg'||b.dataset.k==='pixel'||b.dataset.k==='refSprite')openSettings();
+    if(b.dataset.k==='charStyle'){openSettings();if(CFG.charStyle==='pixel')pxWarm([{stage:2,outfit:meta.outfit},...FRIENDS.map(f=>({who:f.id,stage:1,prop:true}))])}
   });
   m.querySelectorAll('[data-ci]').forEach(inp=>inp.onchange=async()=>{
     const f=inp.files&&inp.files[0]; if(!f)return;
