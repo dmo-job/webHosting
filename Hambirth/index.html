@@ -81,14 +81,10 @@ body { background: var(--bg); color: var(--ink); font-family: var(--display); ov
 
 <script>
 /* ===== 여기만 바꾸세요 ===== */
-const YOUTUBE_URLS = [    // 위에서부터 차례로 시도하고, 재생이 막힌 영상은 자동으로 건너뛰어요
-  "https://www.youtube.com/watch?v=d926ZOS84VA",
-  "https://www.youtube.com/watch?v=l0GN40EL1VU",
-  "https://www.youtube.com/watch?v=J7or0noYfMA",
+const YOUTUBE_URLS = [    // 첫 번째 영상이 막히면 다음 영상으로 자동으로 넘어가요
   "https://www.youtube.com/watch?v=1RCtvxV2vSA",
-  "https://www.youtube.com/watch?v=gEidb7DDmOI",
-  "https://www.youtube.com/watch?v=NYPTvZPQFCE",
-  "https://www.youtube.com/watch?v=o5Q3BYUw-Tc"
+  "https://www.youtube.com/watch?v=d926ZOS84VA",
+  "https://www.youtube.com/watch?v=l0GN40EL1VU"
 ];   // 예: "https://youtu.be/xxxxxxxxxxx"  (유튜브 공유 → 링크 복사)
 const START_SECONDS = 0;  // 앞부분 건너뛰기(초). 예: 8
 const VOLUME = 30;        // 음악 크기 0~100
@@ -134,38 +130,37 @@ const PAGES = ["data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAQDAwQDA
   }
   const IDS = YOUTUBE_URLS.map(ytId).filter(Boolean); let idx = 0; const VID = IDS[0] || '', notice = document.getElementById('notice');
   let player = null, ready = false, playing = false, wantPlay = false;
-  if (VID && location.protocol === 'file:') {
-    document.getElementById('ytHint').textContent = '파일로 열면 유튜브가 막혀요. GitHub Pages 주소로 열어 주세요.';
-  }
+  const hint = document.getElementById('ytHint');
+  if (VID && location.protocol === 'file:') hint.textContent = '파일로 열면 유튜브가 막혀요. GitHub Pages 주소로 열어 주세요.';
   if (!VID) { document.getElementById('musicRow').hidden = true; }
   else {
     const tag = document.createElement('script'); tag.src = 'https://www.youtube.com/iframe_api'; document.head.appendChild(tag);
-    window.onYouTubeIframeAPIReady = () => {
-      player = new YT.Player('yt', {
-        videoId: VID, host: 'https://www.youtube.com',
-        playerVars: { origin: location.origin, playsinline: 1, rel: 0, modestbranding: 1, start: START_SECONDS },
-        events: {
-          onReady: () => { ready = true; player.setVolume(VOLUME); },
-          onError: e => {
-            // 101/150: owner blocked embedding, 100: removed, 2/5: bad id or html5 error -> try the next video
-            idx++;
-            const hint = document.getElementById('ytHint');
-            if (idx < IDS.length) {
-              hint.textContent = '다른 영상으로 바꾸는 중이에요…';
-              if (wantPlay) player.loadVideoById({ videoId: IDS[idx], startSeconds: START_SECONDS });
-              else player.cueVideoById({ videoId: IDS[idx], startSeconds: START_SECONDS });
-            } else {
-              hint.innerHTML = '재생 가능한 영상이 없어요. <a href="https://www.youtube.com/watch?v=' + IDS[0] + '" target="_blank" rel="noopener">유튜브에서 듣기</a>';
-            }
-          },
-          onStateChange: e => {
-            if (e.data === YT.PlayerState.PLAYING) { playing = true; document.getElementById('ytHint').textContent = '♪ 음악이 나오고 있어요'; }
-            if (e.data === YT.PlayerState.ENDED) { player.seekTo(START_SECONDS, true); player.playVideo(); }
-          }
-        }
-      });
-    };
+    window.onYouTubeIframeAPIReady = () => makePlayer();
   }
+  // a blocked video leaves the player stuck, so build a brand-new player for each candidate
+  function makePlayer() {
+    if (player) { try { player.destroy(); } catch (e) {} player = null; }
+    ready = false; playing = false;
+    const box = document.querySelector('.yt-box'); box.innerHTML = '<div id="yt"></div>';
+    player = new YT.Player('yt', {
+      videoId: IDS[idx], host: 'https://www.youtube.com',
+      playerVars: { origin: location.origin, playsinline: 1, rel: 0, start: START_SECONDS },
+      events: {
+        onReady: () => { ready = true; player.setVolume(VOLUME); if (wantPlay) { try { player.unMute(); player.playVideo(); } catch (e) {} } },
+        onStateChange: e => {
+          if (e.data === YT.PlayerState.PLAYING) { playing = true; hint.textContent = '♪ 음악이 나오고 있어요'; }
+          if (e.data === YT.PlayerState.ENDED) { player.seekTo(START_SECONDS, true); player.playVideo(); }
+        },
+        onError: () => {
+          idx++;
+          if (idx < IDS.length) { hint.textContent = '다른 영상으로 바꿨어요. 왼쪽 ▶를 눌러 주세요'; makePlayer(); }
+          else hint.innerHTML = '재생 가능한 영상이 없어요. <a href="https://www.youtube.com/watch?v=' + IDS[0] + '" target="_blank" rel="noopener">유튜브에서 듣기</a>';
+        }
+      }
+    });
+  }
+  // check after load: some blocked videos never fire onError until play is tried
+  setTimeout(() => { if (player && ready && !playing && wantPlay) { try { player.playVideo(); } catch (e) {} } }, 2500);
   function tryPlay() {
     notice.hidden = true; wantPlay = true;
     if (player && ready && !playing) { try { player.unMute(); player.setVolume(VOLUME); player.playVideo(); } catch (e) {} }
